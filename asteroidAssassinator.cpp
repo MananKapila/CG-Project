@@ -10,12 +10,11 @@
 #define MENU_SCREEN 4			
 #define MAX_STONES  100      
 #define MAX_STONE_TYPES 5
-#define stoneRotationSpeed 20
+#define stoneRotationSpeed 0.5
 #define SPACESHIP_SPEED 20
-int stoneTranslationSpeed=5;
 
+int stoneTranslationSpeed=1;
 GLint m_viewport[4];
-GLint CI=0;
 int x,y;
 int i;
 int randomStoneIndices[100];
@@ -34,13 +33,10 @@ bool mButtonPressed= false,startGame=false,gameOver=false;		//boolean values to 
 bool startScreen = true ,nextScreen=false,previousScreen=false;
 bool gameQuit = false,instructionsGame = false, optionsGame = false;
 
-GLfloat a[][2]={0,-50, 70,-50, 70,70, -70,70};
-GLfloat LightColor[][3]={1,1,0,   0,1,1,   0,1,0};
-
 char highScore[100],ch;
 void display();
 void StoneGenerate();
-void displayRasterText(float x ,float y ,float z ,char *stringToDisplay) {
+void displayText(float x ,float y ,float z ,char *stringToDisplay) {
 	int length;
 	glRasterPos3f(x, y, z); //pointer to sa
 		length = strlen(stringToDisplay);
@@ -57,15 +53,12 @@ void SetDisplayMode(int modeToDisplay) {
 	}
 }
 
-//
 void initializeStoneArray() {
 	//random stones index
-	
 	for(int i = 0;i < MAX_STONES ;i++) {
 		randomStoneIndices[i]=rand()%MAX_STONE_TYPES;
 		stoneAlive[i]=true;
 	}
-
 	xStone[0] = -(200*MAX_STONES)-600;             //START LINE for stone appearance
 												
 	for(int i = 0;i<MAX_STONES ;i++) {				//random appearance yIndex for each stone
@@ -75,7 +68,6 @@ void initializeStoneArray() {
 		xStone[i+1] = xStone[i] + 200;				//xIndex of stone aligned with 200 units gap
 	}
 }
-
 
 void DrawBase()
 {
@@ -129,68 +121,6 @@ void DrawBase()
 		glVertex2f(-96.66 ,3);
 	glEnd(); 
 }
-void DrawSpaceshipBody()
-{
-	glColor3f(1,0,0);				//BASE
-
-	glPushMatrix();				
-	glScalef(70,20,1);
-	
-	//glutSolidSphere(1,50,50);
-	glPopMatrix(); 
-			
-	glPushMatrix();							//LIGHTS
-	glScalef(3,3,1);
-	glTranslated(-20,0,0);			//1
-	//glColor3fv(LightColor[(CI+0)%3]);
-	glutSolidSphere(1,1000,1000);
-	glTranslated(5,0,0);					//2
-	//glColor3fv(LightColor[(CI+1)%3]);
-	glutSolidSphere(1,1000,1000);
-	glTranslated(5,0,0);					//3
-	//glColor3fv(LightColor[(CI+2)%3]);
-	glutSolidSphere(1,1000,1000);
-	glTranslated(5,0,0);					//4				
-	//glColor3fv(LightColor[(CI+0)%3]);
-	glutSolidSphere(1,1000,1000);
-	glTranslated(5,0,0);					//5
-	//glColor3fv(LightColor[(CI+1)%3]);
-	glutSolidSphere(1,1000,1000);
-	glTranslated(5,0,0);					//6			
-	//glColor3fv(LightColor[(CI+2)%3]);
-	glutSolidSphere(1,1000,1000);
-	glTranslated(5,0,0);					//7
-	//glColor3fv(LightColor[(CI+0)%3]);
-	glutSolidSphere(1,1000,1000);
-	glTranslated(5,0,0);					//8				
-	//glColor3fv(LightColor[(CI+1)%3]);
-	glutSolidSphere(1,1000,1000);
-	glTranslated(5,0,0);					//9
-	//glColor3fv(LightColor[(CI+2)%3]);
-	glutSolidSphere(1,1000,1000);
-			
-	glPopMatrix();
-}
-void DrawSteeringWheel()
-{
-	glPushMatrix();
-	glLineWidth(3);
-	glColor3f(0.20,0.,0.20);
-	glScalef(7,4,1);
-	glTranslated(-1.9,5.5,0);
-	glutWireSphere(1,8,8);	
-	glPopMatrix();
-	
-}
-void DrawSpaceshipDoom()
-{
-	glColor4f(0.7,1,1,0.0011);
-	glPushMatrix();
-	glTranslated(0,30,0);
-	glScalef(35,50,1);
-	glutSolidSphere(1,50,50);
-	glPopMatrix();
-}
 void DrawSpaceShipLazer() {
 	
 	glColor3f(0.85, 0.85, 0.85);
@@ -240,18 +170,6 @@ void DrawLazerBeam() {
 	glEnd();
 	glLineWidth(1);
 }
-//void circle()
-//{
-//	glColor3f(0.5,0.0,0.0);
-//	glBegin(GL_POLYGON);
-//	float x,y,r,th;
-//	x = 200; y = 300; r = 20; 
-//	for(int i = 0;i < 360; i++){
-//		th = i*3.141/180;
-//		glVertex2f(x+r*cos(th),y+r*sin(th));
-//	}
-//	glEnd();
-//}
 void DrawStone(int StoneIndex)
 {
 	glPushMatrix();
@@ -266,7 +184,6 @@ void DrawStone(int StoneIndex)
 		glColor3f(0.4f, 0.0f, 0.0f);
 		glScalef(35,35,1);
 		glutSolidSphere(1,9,50);
-		//glutSolidSphere(3,9,50);
 		
 		glLoadIdentity();
 		glTranslated(xStone[index] , yStone[index] ,0);
@@ -284,19 +201,12 @@ void DrawStone(int StoneIndex)
 		break;
 
 	case 1:
-		glColor3f(1.0f, 0.8f, 0.8f);
+		glColor3f(0.4f, 0.4f, 0.4f);
 		glTranslated(xStone[index] , yStone[index] ,0);
 		glRotatef(stoneAngle ,0, 0, 1);
 		glTranslated(0, 0, 0);
 		glScalef(15,20,1);
 		glutSolidSphere(1,9,50);
-
-		glLoadIdentity();
-		glTranslated(xStone[index] , yStone[index] ,0);
-		glRotatef(stoneAngle ,0, 0, 1);
-		glTranslated(0, 0, 0);
-		glScalef(40,5,1);
-		glutSolidSphere(1,5,50);
 		break;
 
 	case 2:
@@ -373,14 +283,10 @@ void SpaceshipCreate(){
 		alienLife-=10;
 		xHealthBarStart -= 230;
 	}
-//	DrawSpaceshipDoom();
 	glPushMatrix();
 	glTranslated(4,19,0);
-//	DrawAlien();
 	glPopMatrix();
-//	DrawSteeringWheel();
     DrawBase();
-	DrawSpaceshipBody();
 	DrawSpaceShipLazer();
 	if(mButtonPressed) {
 		DrawLazerBeam();
@@ -400,11 +306,11 @@ void DisplayHealthBar() {
 	char temp[40];
 	glColor3f(0 ,0 ,1);
 	sprintf(temp,"SCORE = %d",Score);
-	displayRasterText(-1100 ,600 ,0.4 ,temp);//<---display variable score ?
+	displayText(-1100 ,600 ,0.4 ,temp);//<---display variable score ?
 	sprintf(temp,"  LIFE = %d",alienLife);
-	displayRasterText(800 ,600 ,0.4 ,temp);
+	displayText(800 ,600 ,0.4 ,temp);
 	sprintf(temp,"  LEVEL : %d",GameLvl);
-	displayRasterText(-100 ,600 ,0.4 ,temp);
+	displayText(-100 ,600 ,0.4 ,temp);
 	glColor3f(1 ,0 ,0);
 }
 void startScreenDisplay() // edit
@@ -412,9 +318,16 @@ void startScreenDisplay() // edit
 	glLineWidth(15);
 	SetDisplayMode(MENU_SCREEN);
 	
-	displayRasterText(-300 ,540 ,1.0 ,"ASTEROID ASSASSINATOR");
-	displayRasterText(-300 ,523 ,1.0 ,"________________________");
-
+	displayText(-300 ,540 ,0.0 ,"ASTEROID ASSASSINATOR");
+	displayText(-300 ,523 ,0.0 ,"________________________");
+	
+	//Team members names
+	displayText(700 ,-100 ,0.0 ,"Group Members");
+	displayText(700 ,-113 ,0.0 ,"_____________");
+	displayText(700 ,-173 ,0.0 ,"101803460 Ashray");
+	displayText(700 ,-223 ,0.0 ,"101803654 Manan");
+    displayText(700 ,-273 ,0.0 ,"101803660 Jaskaran");
+	
 	glColor3f(0,0,0);
 	glBegin(GL_LINE_LOOP);               //Border
 		glVertex3f(-600 ,-400 ,0.5);
@@ -457,7 +370,7 @@ void startScreenDisplay() // edit
 	} else
 		glColor3f(0 , 0, 0);
 
-	displayRasterText(-100 ,340 ,0.4 ,"Start Game");
+	displayText(-100 ,340 ,0.4 ,"Start Game");
 	
 	if(mouseX>=-100 && mouseX<=100 && mouseY>=30 && mouseY<=80) {
 		glColor3f(0 ,0 ,1);
@@ -467,7 +380,7 @@ void startScreenDisplay() // edit
 		}
 	} else
 		glColor3f(0 , 0, 0);
-	displayRasterText(-120 ,80 ,0.4 ,"Instructions");
+	displayText(-120 ,80 ,0.4 ,"Instructions");
 	
 	if(mouseX>=-100 && mouseX<=100 && mouseY>=-90 && mouseY<=-40){
 		glColor3f(0 ,0 ,1);
@@ -478,7 +391,7 @@ void startScreenDisplay() // edit
 	}
 	else
 		glColor3f(0 , 0, 0);
-	displayRasterText(-100 ,-170 ,0.4 ,"    Quit");
+	displayText(-100 ,-170 ,0.4 ,"    Quit");
 	
 }
 void GameScreenDisplay()
@@ -543,7 +456,7 @@ void GameOverScreen()
 	glEnd();
 	
 	glLineWidth(1);
-	stoneTranslationSpeed=5;
+	stoneTranslationSpeed=1;
 	glColor3f(0, 1, 0);
 	glBegin(GL_POLYGON);				//GAME OVER
 		glVertex3f(-550 ,810,0.5);
@@ -568,12 +481,12 @@ void GameOverScreen()
 	glEnd();
 		
 
-	displayRasterText(-300 ,640 ,0.4 ,"G A M E    O V E R ! ! !");
+	displayText(-300 ,640 ,0.4 ,"G A M E    O V E R ! ! !");
 	glColor3f(0 , 0, 0);
 	char temp[40];
 	
 	sprintf(temp,"Score : %d",Score);
-	displayRasterText(-100 ,340 ,0.4 ,temp);
+	displayText(-100 ,340 ,0.4 ,temp);
 	readFromFile();
 	char temp2[40];
 	if(atoi(highScore) < Score){
@@ -582,7 +495,7 @@ void GameOverScreen()
 	} else 
 		sprintf(temp2 ,"Highest Score :%s" ,highScore);
 
-	displayRasterText(-250 ,400 ,0.4 ,temp2);
+	displayText(-250 ,400 ,0.4 ,temp2);
 		
 	if(mouseX>=-100 && mouseX<=100 && mouseY>=25 && mouseY<=75){
 		glColor3f(0 ,0 ,1);
@@ -599,7 +512,7 @@ void GameOverScreen()
 		}
 	} else
 		glColor3f(0 , 0, 0);
-	displayRasterText(-70 ,80 ,0.4 ,"Restart");
+	displayText(-70 ,80 ,0.4 ,"Restart");
 		
 	if(mouseX>=-100 && mouseX<=100 && mouseY>=-100 && mouseY<=-50){
 		glColor3f(0 ,0 ,1);
@@ -610,14 +523,14 @@ void GameOverScreen()
 	}
 	else
 		glColor3f(0 , 0, 0);
-	displayRasterText(-100 ,-170 ,0.4 ,"    Quit");
+	displayText(-100 ,-170 ,0.4 ,"    Quit");
 	
 }
 void StoneGenerate(){
 
 		if(xStone[0]>=1200){      //If the last screen hits the end of screen then go to Nxt lvl
 			GameLvl++;
-			stoneTranslationSpeed+=3;
+			stoneTranslationSpeed+=2;
 			Score+=50;
 			initializeStoneArray();
 			GameScreenDisplay();
@@ -631,7 +544,7 @@ void StoneGenerate(){
 				stoneAlive[i]=0;
 				Score++;
 				if(Score%1==0) {
-					stoneTranslationSpeed+=1;			//<--------------Rate of increase of game speed
+					stoneTranslationSpeed+=0.5;			//<--------------Rate of increase of game speed
 				}							
 			}
 		}
@@ -652,28 +565,24 @@ void backButton() {
 			}
 	}
 	else glColor3f(0, 0, 0);
-	displayRasterText(-1000 ,-550 ,0, "Back");
+	displayText(-1000 ,-550 ,0, "Back");
 }
 void InstructionsScreenDisplay()
 {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	SetDisplayMode(MENU_SCREEN);
-	//colorBackground();
 	glColor3f(0, 0, 0);
-	displayRasterText(-900 ,400 ,0.4 ,"Key 'w' to move up.");
-	displayRasterText(-900 ,300 ,0.4 ,"Key 's' to move down.");
-	displayRasterText(-900 ,200 ,0.4 ,"Key 'd' to move right.");
-	displayRasterText(-900 ,100 ,0.4 ,"Key 'a' to move left.");
-	displayRasterText(-900 ,0.0 ,0.4 ,"Left mouse click to shoot laser");
-	//displayRasterText(-900 ,-100 ,0.4 ,"The packet can be placed only when 's' is pressed before.");
-	displayRasterText(-900 ,-200 ,0.4 ,"You Get 1 point for shooting each objet and 50 points for completing each lvl ");
-	displayRasterText(-900, -270,0.4,"The Objective is to score maximum points");
+	displayText(-900 ,400 ,0.4 ,"Key 'w' to move up.");
+	displayText(-900 ,300 ,0.4 ,"Key 's' to move down.");
+	displayText(-900 ,200 ,0.4 ,"Key 'd' to move right.");
+	displayText(-900 ,100 ,0.4 ,"Key 'a' to move left.");
+	displayText(-900 ,0.0 ,0.4 ,"Left mouse click to shoot laser");
+	displayText(-900 ,-200 ,0.4 ,"You Get 1 point for shooting each objet and 50 points for completing each lvl ");
+	displayText(-900, -270,0.4,"The Objective is to score maximum points");
 	backButton();
 	if(previousScreen)
 		nextScreen = false ,previousScreen = false; //as set by backButton()
-
-
 }
 void display() {
 
@@ -724,7 +633,6 @@ void somethingMovedRecalculateLaserAngle() {
 }
 void keys(unsigned char key, int x, int y)
 {
-	//if(key=='w' && key=='d' ){xOne+=0.5;yOne+=0.5;}
 	if(key == 'd') xOne+=SPACESHIP_SPEED; 
 	if(key == 'a') xOne-=SPACESHIP_SPEED; 
 	if(key == 'w') {yOne+=SPACESHIP_SPEED;}
@@ -732,8 +640,7 @@ void keys(unsigned char key, int x, int y)
 	if(key == 'd' || key == 'a' || key == 'w' || key == 's')
 		somethingMovedRecalculateLaserAngle();
 			
-	display();
-	
+	display();	
 }
 void myinit()
 {
@@ -741,9 +648,7 @@ void myinit()
 	glColor3f(1.0,0.0,0.0);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	
     gluOrtho2D(-1200,1200,-700,700);                   //<-----CHANGE THIS TO GET EXTRA SPACE
-//  gluOrtho2D(-200,200,-200,200);
 	glMatrixMode(GL_MODELVIEW);
 }
 void passiveMotionFunc(int x,int y) {
@@ -751,7 +656,6 @@ void passiveMotionFunc(int x,int y) {
 	//when mouse not clicked
 	mouseX = float(x)/(m_viewport[2]/1200.0)-600.0;  //converting screen resolution to ortho 2d spec
 	mouseY = -(float(y)/(m_viewport[3]/700.0)-350.0);
-
 	//Do calculations to find value of LaserAngle
 	somethingMovedRecalculateLaserAngle();
 	display();
@@ -763,12 +667,6 @@ void passiveMotionFunc(int x,int y) {
 	else 
 		mButtonPressed = false;
 	display();
-}
- void UpdateColorIndexForSpaceshipLights(int value)
-{
-	 CI=(CI+1)%3;			//Color Index swapping to have rotation effect
-	 display();
- 	 glutTimerFunc(250,UpdateColorIndexForSpaceshipLights,0);
 }
 void idleCallBack() {			//when no mouse or keybord pressed
 	 display();
@@ -785,7 +683,6 @@ int main(int argc, char** argv) {
 	glutInitWindowSize(1200,700);
 	glutInitWindowPosition(90 ,0);
 	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
-	glutTimerFunc(50,UpdateColorIndexForSpaceshipLights,0);
 	glutCreateWindow("THE SPACESHIP SHOOTING GAME");  
 	glutDisplayFunc(display); 
 	glutKeyboardFunc(keys);  
